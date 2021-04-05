@@ -22,6 +22,7 @@ def rename():
             for proj in projects:
                 filepath = os.path.join(dirpath, proj)
                 update_dependencies(filepath, new_dll_name)
+    update_common_dependencies(new_dll_name)
 
 
 def rename_target(filepath, new_dll_name):
@@ -36,22 +37,32 @@ def rename_target(filepath, new_dll_name):
 
 
 def update_dependencies(filepath, new_dll_name):
-    r = re.compile('(gen_.+\\.|SbieDll\\.)')
+    r = re.compile('(gen_[^.]+|SbieDll\\.)')
     tree = ET.parse(filepath)
     root = tree.getroot()
     for prop in root.findall('./*/*/vs:AdditionalDependencies', NS):
         if r.search(str(prop.text)):
             prop.text = r.sub(f'{new_dll_name}.', str(prop.text))
-            print(prop.text)
     tree.write(filepath,
                xml_declaration=True,
                encoding='utf-8',
                method="xml")
 
 
+def update_common_dependencies(new_dll_name):
+    with open('./common/my_version.h', 'r+') as f:
+        data = f.read()
+        data = re.sub('#define SBIEDLL *L".*"', f'#define SBIEDLL                 L"{new_dll_name}"', data)
+        f.seek(0)
+        f.write(data)
+        f.truncate()
+
+
 def build():
     subprocess.run(
         'msbuild /t:build Sandbox.sln /p:Configuration="SbieRelease" /p:Platform=x64 -maxcpucount:4')
+    subprocess.run(
+        'msbuild /t:build Sandbox.sln /p:Configuration="SbieRelease" /p:Platform=Win32 -maxcpucount:4')
 
 
 if __name__ == '__main__':
