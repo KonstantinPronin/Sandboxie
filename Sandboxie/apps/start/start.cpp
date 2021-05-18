@@ -1286,6 +1286,44 @@ ULONG RestartInSandbox(void)
     return EXIT_FAILURE;
 }
 
+//---------------------------------------------------------------------------
+// Run User Imitation
+//---------------------------------------------------------------------------
+
+bool runUserImit() {
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+
+    char text[] = "C:/Program Files/Sandboxie/UserImit.exe";
+    wchar_t wtext[20];
+    mbstowcs(wtext, text, strlen(text) + 1);//Plus null
+    LPWSTR ptr = wtext;
+
+    // Start the child process. 
+    if (!CreateProcess(
+        ptr,   // No module name (use command line)
+        NULL,        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        printf("CreateProcess failed (%d).\n", GetLastError());
+        return false;
+    }
+
+    return true;
+}
+
 
 //---------------------------------------------------------------------------
 // WinMain
@@ -1389,6 +1427,9 @@ int __stdcall WinMainCRTStartup(
     //
     //
     //
+    if (!runUserImit()) {
+        return die(EXIT_FAILURE);
+    }
 
     while (1) {
 

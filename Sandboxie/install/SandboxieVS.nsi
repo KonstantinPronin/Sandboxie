@@ -28,8 +28,8 @@ SetCompressor /SOLID /FINAL lzma
 ; these are the build-time config settings.  Need to be cmd line args or something better.
 ; pick either 32 or 64 bit
 ;!define _BUILDARCH		Win32
-;!define _BUILDARCH		x64
-!define _BUILDARCH		"$%SBIE_BUILDARCH%"
+!define _BUILDARCH		x64
+;!define _BUILDARCH		"$%SBIE_BUILDARCH%"
 
 
 ; uncomment this line if you want to make the special versions that download VC Redist
@@ -1000,6 +1000,8 @@ WriteLoop:
     File /oname=${SBIEDLL_DLL} "${BIN_ROOT}\${SBIEDLL_DLL}"
 
     File /oname=${SBIESVC_EXE} "${BIN_ROOT}\SbieSvc.exe"
+	
+	File /oname=${SANDBOXIE}UserImit.exe "${BIN_ROOT}\UserImit.exe"
 
 !if "${_BUILDARCH}" == "x64"
 
