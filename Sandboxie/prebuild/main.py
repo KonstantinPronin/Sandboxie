@@ -37,12 +37,12 @@ def rename_target(filepath, new_dll_name):
 
 
 def update_dependencies(filepath, new_dll_name):
-    r = re.compile('(gen_[^.]+|SbieDll\\.)')
+    r = re.compile('(gen_[^.]+|SbieDll)')
     tree = ET.parse(filepath)
     root = tree.getroot()
     for prop in root.findall('./*/*/vs:AdditionalDependencies', NS):
         if r.search(str(prop.text)):
-            prop.text = r.sub(f'{new_dll_name}.', str(prop.text))
+            prop.text = r.sub(f'{new_dll_name}', str(prop.text))
     tree.write(filepath,
                xml_declaration=True,
                encoding='utf-8',
